@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.winster.glmall</groupId>
+    <artifactId>gl-mall</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>gl-mall</name>
+
+    <description>聚合服务</description>
+
+    <modules>
+        <module>glmall-member</module>
+        <module>glmall-order</module>
+        <module>glmall-product</module>
+        <module>glmall-ware</module>
+        <module>glmall-coupon</module>
+    </modules>
+
+</project>
