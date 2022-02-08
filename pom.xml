@@ -17,6 +17,11 @@
         <module>glmall-product</module>
         <module>glmall-ware</module>
         <module>glmall-coupon</module>
+        <module>renren-fast</module>
+        <module>renren-generator</module>
+        <module>glmall-common</module>
+        <module>glmall-gateway</module>
+        <module>third-party-server</module>
     </modules>
 
 </project>

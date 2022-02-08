@@ -1,0 +1,43 @@
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: third-party-route
+          uri: lb://third-party-server
+          predicates:
+            # 前端項目，所有請求都帶上/api前綴
+            - Path=/api/thirdParty/**
+          filters:
+            # 请求到glmallproduct的请求，需要将/api去掉
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
+        # glmall_product_route由规则：/api/glmallproduct/**，其生效限制范围小于 renren_fast_route 的路由规则：/api/**
+        # 为了防止请求到glmall-product的请求被renren-fast拦截了去，我们需要将glmall_product_route放在renren_fast_route之前生效
+        - id: glmall_product_route
+          uri: lb://glmall-product
+          predicates:
+              # 前端項目，所有請求都帶上/api前綴
+            - Path=/api/glmallproduct/**
+          filters:
+              # 请求到glmallproduct的请求，需要将/api去掉
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
+        - id: renren_fast_route
+          uri: lb://renren-fast
+          predicates:
+            ## 前端項目，所有請求都帶上/api前綴
+            - Path=/api/**
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /renren-fast/$\{segment}
+
+
+# 目标为glmall-product的请求：
+# http://localhost:999/api/glmallproduct/category/listWithTree
+# =>
+# http://localhost:9000/glmallproduct/category/listWithTree
+
+# 前端发送到网关的请求：
+# http://localhost:999/api/captcha.jpg
+# 转到renren-fast的请求：
+# http://renren-fast:8080/api/captcha.jpg
+# renren-fast上认可的请求：
+# http://renren-fast:8080/renren-fast/captcha.jpg
+# 所以，我们需要将请求中的/api改为/renren-fast
