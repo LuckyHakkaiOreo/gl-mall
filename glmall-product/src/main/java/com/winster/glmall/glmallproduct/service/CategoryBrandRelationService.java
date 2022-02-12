@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.winster.common.utils.PageUtils;
 import com.winster.glmall.glmallproduct.entity.CategoryBrandRelationEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,5 +19,7 @@ public interface CategoryBrandRelationService extends IService<CategoryBrandRela
     PageUtils queryPage(Map<String, Object> params);
 
     void saveCategoryBrandRelation(CategoryBrandRelationEntity categoryBrandRelation);
+
+    List<CategoryBrandRelationEntity> getBrandsListByCatId(Long catId);
 }
 

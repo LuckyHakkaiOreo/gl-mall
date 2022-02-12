@@ -1,20 +1,13 @@
 package com.winster.glmall.glmallproduct.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.winster.glmall.glmallproduct.entity.AttrEntity;
-import com.winster.glmall.glmallproduct.service.AttrService;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
+import com.winster.glmall.glmallproduct.service.AttrService;
+import com.winster.glmall.glmallproduct.vo.AttrVo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 
 
 /**
@@ -31,12 +24,13 @@ public class AttrController {
     private AttrService attrService;
 
     /**
-     * 列表
+     * 查询指定分类的基础属性列表
      */
-    @RequestMapping("/list")
+    @RequestMapping("{attrType}/list/{catId}")
     // @RequiresPermissions("glmallproduct:attr:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = attrService.queryPage(params);
+    public R list(@RequestParam Map<String, Object> params,
+                  @PathVariable("attrType") String attrType, @PathVariable("catId") Long catId) {
+        PageUtils page = attrService.queryPage(params, catId, attrType);
 
         return R.ok().put("page", page);
     }
@@ -47,8 +41,9 @@ public class AttrController {
      */
     @RequestMapping("/info/{attrId}")
     // @RequiresPermissions("glmallproduct:attr:info")
-    public R info(@PathVariable("attrId") Long attrId){
-		AttrEntity attr = attrService.getById(attrId);
+    public R info(@PathVariable("attrId") Long attrId) {
+
+        AttrVo attr = attrService.getInfo(attrId);
 
         return R.ok().put("attr", attr);
     }
@@ -58,8 +53,9 @@ public class AttrController {
      */
     @RequestMapping("/save")
     // @RequiresPermissions("glmallproduct:attr:save")
-    public R save(@RequestBody AttrEntity attr){
-		attrService.save(attr);
+    public R save(@RequestBody AttrVo attr) {
+
+        attrService.save(attr);
 
         return R.ok();
     }
@@ -69,8 +65,8 @@ public class AttrController {
      */
     @RequestMapping("/update")
     // @RequiresPermissions("glmallproduct:attr:update")
-    public R update(@RequestBody AttrEntity attr){
-		attrService.updateById(attr);
+    public R update(@RequestBody AttrVo attr) {
+        attrService.updateAttr(attr);
 
         return R.ok();
     }
@@ -80,8 +76,9 @@ public class AttrController {
      */
     @RequestMapping("/delete")
     // @RequiresPermissions("glmallproduct:attr:delete")
-    public R delete(@RequestBody Long[] attrIds){
-		attrService.removeByIds(Arrays.asList(attrIds));
+    public R delete(@RequestBody Long[] attrIds) {
+
+        attrService.removeAttr(attrIds);
 
         return R.ok();
     }

@@ -5,12 +5,14 @@ import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
 import com.winster.glmall.glmallproduct.entity.CategoryBrandRelationEntity;
 import com.winster.glmall.glmallproduct.service.CategoryBrandRelationService;
+import com.winster.glmall.glmallproduct.vo.BrandByCategoryIdVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -25,6 +27,37 @@ import java.util.Map;
 public class CategoryBrandRelationController {
     @Autowired
     private CategoryBrandRelationService categoryBrandRelationService;
+
+    // /glmallproduct/categorybrandrelation/brands/list
+
+    /**
+     * 查询当前分类下，所有的品牌信息
+     */
+    @RequestMapping("/brands/list")
+    // @RequiresPermissions("glmallproduct:categorybrandrelation:list")
+    public R getBrandsListByCatId(@RequestParam Long catId) {
+        /*
+        {
+	"msg": "success",
+	"code": 0,
+	"data": [{
+		"brandId": 0,
+		"brandName": "string",
+	}]
+}
+        * */
+
+        List<CategoryBrandRelationEntity> list = categoryBrandRelationService.getBrandsListByCatId(catId);
+
+        List<BrandByCategoryIdVo> result = list.stream().map(b -> {
+            BrandByCategoryIdVo vo = new BrandByCategoryIdVo();
+            vo.setBrandId(b.getBrandId());
+            vo.setBrandName(b.getBrandName());
+            return vo;
+        }).collect(Collectors.toList());
+
+        return R.ok().put("data", result);
+    }
 
     /**
      * 列表

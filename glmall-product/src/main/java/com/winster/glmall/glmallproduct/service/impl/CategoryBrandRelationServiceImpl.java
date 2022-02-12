@@ -15,6 +15,7 @@ import com.winster.glmall.glmallproduct.service.CategoryBrandRelationService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 
@@ -46,6 +47,14 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
         categoryBrandRelation.setBrandName(brandEntity.getName());
         categoryBrandRelation.setCatelogName(categoryEntity.getName());
         baseMapper.insert(categoryBrandRelation);
+    }
+
+    @Override
+    public List<CategoryBrandRelationEntity> getBrandsListByCatId(Long catId) {
+        QueryWrapper<CategoryBrandRelationEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("catelog_id", catId);
+        List<CategoryBrandRelationEntity> list = baseMapper.selectList(wrapper);
+        return list;
     }
 
 }

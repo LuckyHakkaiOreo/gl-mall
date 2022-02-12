@@ -15,7 +15,18 @@ public class GlmallWareApplication {
 
     public static void main(String[] args) {
         ConfigurableApplicationContext run = SpringApplication.run(GlmallWareApplication.class, args);
-//        System.out.println(run.getEnvironment().getProperty("custom.mysql.name"));
+
+        /*new Thread(() -> {
+            while (true) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                System.out.println(run.getEnvironment().getProperty("spring.jackson.date-format"));
+            }
+        }).start();*/
+
 
     }
 

@@ -2,6 +2,28 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: glmall-ware-route
+          uri: lb://glmall-ware
+          predicates:
+            # 前端項目，所有請求都帶上/api前綴
+            - Path=/api/glmallWare/**
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
+        - id: glmall-coupon-route
+          uri: lb://glmall-coupon
+          predicates:
+            # 前端項目，所有請求都帶上/api前綴
+            - Path=/api/glmallcoupon/**
+          filters:
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
+        - id: glmall-member-route
+          uri: lb://glmall-member
+          predicates:
+            # 前端項目，所有請求都帶上/api前綴
+            - Path=/api/glmallmember/**
+          filters:
+            # 请求到glmallproduct的请求，需要将/api去掉
+            - RewritePath=/api/?(?<segment>.*), /$\{segment}
         - id: third-party-route
           uri: lb://third-party-server
           predicates:

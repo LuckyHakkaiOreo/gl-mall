@@ -2,8 +2,10 @@ package com.winster.glmall.glmallware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.winster.common.utils.PageUtils;
+import com.winster.glmall.glmallware.entity.PurchaseDetailEntity;
 import com.winster.glmall.glmallware.entity.WareSkuEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,5 +18,7 @@ import java.util.Map;
 public interface WareSkuService extends IService<WareSkuEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
+
+    void addStock(List<PurchaseDetailEntity> purchaseDetailEntities);
 }
 
