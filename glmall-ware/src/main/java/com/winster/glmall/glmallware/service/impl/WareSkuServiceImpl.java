@@ -76,4 +76,12 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     }
 
+    @Override
+    public List<WareSkuEntity> getWareSkuByskuIds(List<Long> skuIds) {
+        QueryWrapper<WareSkuEntity> w = new QueryWrapper<>();
+        w.in("sku_id", skuIds);
+        List<WareSkuEntity> list = this.list(w);
+        return list;
+    }
+
 }

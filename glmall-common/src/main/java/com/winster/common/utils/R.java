@@ -8,6 +8,7 @@
 
 package com.winster.common.utils;
 
+import com.winster.common.exception.ExceptionEnum;
 import org.apache.http.HttpStatus;
 
 import java.util.HashMap;
@@ -38,6 +39,13 @@ public class R extends HashMap<String, Object> {
 		R r = new R();
 		r.put("code", code);
 		r.put("msg", msg);
+		return r;
+	}
+
+	public static R error(ExceptionEnum en) {
+		R r = new R();
+		r.put("code", en.getCode());
+		r.put("msg", en.getMsg());
 		return r;
 	}
 

@@ -1,5 +1,7 @@
 package com.winster.common.to;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -10,6 +12,7 @@ import java.math.BigDecimal;
  * @email winsterhandsome@gmail.com
  * @date 2022-02-04 08:04:23
  */
+@Data
 public class SkuFullReductionTo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -34,43 +37,5 @@ public class SkuFullReductionTo implements Serializable {
 	 */
 	private Integer addOther;
 
-	public Long getId() {
-		return id;
-	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public Long getSkuId() {
-		return skuId;
-	}
-
-	public void setSkuId(Long skuId) {
-		this.skuId = skuId;
-	}
-
-	public BigDecimal getFullPrice() {
-		return fullPrice;
-	}
-
-	public void setFullPrice(BigDecimal fullPrice) {
-		this.fullPrice = fullPrice;
-	}
-
-	public BigDecimal getReducePrice() {
-		return reducePrice;
-	}
-
-	public void setReducePrice(BigDecimal reducePrice) {
-		this.reducePrice = reducePrice;
-	}
-
-	public Integer getAddOther() {
-		return addOther;
-	}
-
-	public void setAddOther(Integer addOther) {
-		this.addOther = addOther;
-	}
 }

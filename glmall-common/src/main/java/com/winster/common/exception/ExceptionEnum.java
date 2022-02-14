@@ -12,10 +12,12 @@ package com.winster.common.exception;
  * 3）12，订单
  * 4）13，购物车
  * 5）14，物流
+ * 6)  15.  三方服务
  */
 public enum ExceptionEnum {
     UNKNOW_EXCEPTION(10000, "系统未知异常"),
-    VALID_PARAMS_EXCEPTION(10001, "参数校验不通过");
+    VALID_PARAMS_EXCEPTION(10001, "参数校验不通过"),
+    THIRD_EXCEPTION(15000, "三方服务es保存发生错误");
 
     private Integer code;
     private String msg;

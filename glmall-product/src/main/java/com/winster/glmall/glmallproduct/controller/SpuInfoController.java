@@ -3,6 +3,7 @@ package com.winster.glmall.glmallproduct.controller;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
 import com.winster.glmall.glmallproduct.entity.SpuInfoEntity;
+import com.winster.glmall.glmallproduct.service.SkuInfoService;
 import com.winster.glmall.glmallproduct.service.SpuInfoService;
 import com.winster.glmall.glmallproduct.vo.SpuInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,20 @@ import java.util.Map;
 public class SpuInfoController {
     @Autowired
     private SpuInfoService spuInfoService;
+
+    @Autowired
+    private SkuInfoService skuInfoService;
+
+    /**
+     * 将指定spu下的所有sku商品都上架到es
+     * @param spuId
+     * @return
+     */
+    @PostMapping("/{spuId}/up")
+    public R skuUp(@PathVariable("spuId") Long spuId){
+        skuInfoService.skuUp(spuId);
+        return R.ok();
+    }
 
     /**
      * 列表

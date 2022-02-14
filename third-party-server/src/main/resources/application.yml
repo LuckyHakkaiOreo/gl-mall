@@ -1,24 +1,24 @@
-server:
-  port: 13999
-
-
-minio:
-  endpoint: http://192.168.0.196
-  uploadPort: 9000
-  downloadPort: 9001
-  accessKey: 51B6P21DHJFLAZPLHGUD
-  secretKey: iaZQUdMsSojTlZZqNNAslXiBzIQr1pr2S9YptR7w
-  # token\u751F\u6548\u65F6\u95F4\uFF08\u79D2\uFF09
-  tokenTimeout: 60
-
-spring:
-  servlet:
-    multipart:
-      # \u5355\u4E2A\u6587\u4EF6\u603B\u5927\u5C0F
-      max-file-size: 10MB
-      enabled: true
-      #\u5355\u6B21\u8BF7\u6C42\u603B\u5927\u5C0F
-      max-request-size: 30MB
+#server:
+#  port: 13999
+#
+#
+#minio:
+#  endpoint: http://192.168.0.196
+#  uploadPort: 9000
+#  downloadPort: 9001
+#  accessKey: 51B6P21DHJFLAZPLHGUD
+#  secretKey: iaZQUdMsSojTlZZqNNAslXiBzIQr1pr2S9YptR7w
+#  # token的有效时长
+#  tokenTimeout: 60
+#
+#spring:
+#  servlet:
+#    multipart:
+#      # 最大单个文件上传大小
+#      max-file-size: 10MB
+#      enabled: true
+#      #单次请求最大文件上传大小
+#      max-request-size: 30MB
 
 #  .endpoint("http://192.168.0.196:9000/")
 #  .credentials("51B6P21DHJFLAZPLHGUD", "iaZQUdMsSojTlZZqNNAslXiBzIQr1pr2S9YptR7w")

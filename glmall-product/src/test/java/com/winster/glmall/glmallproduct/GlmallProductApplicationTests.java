@@ -19,7 +19,7 @@ class GlmallProductApplicationTests {
     private CategoryService categoryService;
 
     @Test
-    void testFindPath(){
+    void testFindPath() {
         Long[] catelogPath = categoryService.findCatelogPath(225L);
         log.info(Arrays.toString(catelogPath));
     }
