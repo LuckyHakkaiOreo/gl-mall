@@ -28,3 +28,8 @@
 ##    web:
 ##      exposure:
 ##        include: *
+spring:
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html

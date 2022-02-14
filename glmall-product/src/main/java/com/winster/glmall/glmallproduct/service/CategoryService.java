@@ -3,6 +3,7 @@ package com.winster.glmall.glmallproduct.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.winster.common.utils.PageUtils;
 import com.winster.glmall.glmallproduct.entity.CategoryEntity;
+import com.winster.glmall.glmallproduct.vo.Catelog2V0;
 
 import java.util.List;
 import java.util.Map;
@@ -25,5 +26,7 @@ public interface CategoryService extends IService<CategoryEntity> {
     Long[] findCatelogPath(Long catelogId);
 
     void updateCascade(CategoryEntity category);
+
+    Map<String, List<Catelog2V0>> getCatalogJson();
 }
 

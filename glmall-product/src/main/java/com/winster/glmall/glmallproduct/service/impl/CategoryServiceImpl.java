@@ -10,9 +10,11 @@ import com.winster.glmall.glmallproduct.dao.CategoryDao;
 import com.winster.glmall.glmallproduct.entity.CategoryBrandRelationEntity;
 import com.winster.glmall.glmallproduct.entity.CategoryEntity;
 import com.winster.glmall.glmallproduct.service.CategoryService;
+import com.winster.glmall.glmallproduct.vo.Catelog2V0;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -106,6 +108,44 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             entity.setCatelogName(category.getName());
             categoryBrandRelationDao.update(entity, cbWrapper);
         }
+    }
+
+    @Override
+    public Map<String, List<Catelog2V0>> getCatalogJson() {
+
+        // 一次全量查出所有的分类数据，这样能够较大的提高接口的吞吐量。
+        // todo 当然，再怎么叼也比不上使用缓存！像分类这种不经常变动的数据，直接放在缓存中就好了
+        List<CategoryEntity> all = this.list();
+
+        // 1级分类
+        List<CategoryEntity> level1 = findCategorysByParentId(all,0l);
+        Map<String, List<Catelog2V0>> result = level1.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), i1 -> {
+            //1. 查出当前所有二级分类
+            List<CategoryEntity> level2 = findCategorysByParentId(all,i1.getCatId());
+            List<Catelog2V0> catelog2V0s = null;
+            if (!CollectionUtils.isEmpty(level2)) {
+                catelog2V0s = level2.stream().map(i2 -> {
+                    Catelog2V0 catelog2V0 = new Catelog2V0(i1.getCatId().toString(), null, i2.getCatId().toString(), i2.getName());
+                    // 查询当前二级分类的三级分类
+                    List<CategoryEntity> level3 = findCategorysByParentId(all,i2.getCatId());
+                    if (!CollectionUtils.isEmpty(level3)) {
+                        List<Catelog2V0.Catelog3V0> catelog3V0s = level3.stream().map(i3 -> {
+                            Catelog2V0.Catelog3V0 catelog3V0 = new Catelog2V0.Catelog3V0(i2.getCatId().toString(), i3.getCatId().toString(), i3.getName());
+                            return catelog3V0;
+                        }).collect(Collectors.toList());
+                        catelog2V0.setCatalog3List(catelog3V0s);
+                    }
+
+                    return catelog2V0;
+                }).collect(Collectors.toList());
+            }
+            return catelog2V0s;
+        }));
+        return result;
+    }
+
+    private List<CategoryEntity> findCategorysByParentId(List<CategoryEntity> all, Long parentId) {
+        return all.stream().filter(item -> item.getParentCid() == parentId).collect(Collectors.toList());
     }
 
     private void findCatePath(Long catelogId, List<Long> list) {
