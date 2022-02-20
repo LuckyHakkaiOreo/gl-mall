@@ -74,11 +74,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         }
 
         if (brandId != 0) {
-            wrapper.eq("brandId", brandId);
+            wrapper.eq("brand_id", brandId);
         }
 
         if (catelogId != 0) {
-            wrapper.eq("catelogId", catelogId);
+            wrapper.eq("catalog_id", catelogId);
         }
 
         if (StringUtils.isNotBlank(key)){

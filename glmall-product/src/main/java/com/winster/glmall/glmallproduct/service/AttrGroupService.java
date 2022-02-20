@@ -7,6 +7,7 @@ import com.winster.glmall.glmallproduct.entity.AttrGroupEntity;
 import com.winster.glmall.glmallproduct.vo.AttrGroupWithAttrVo;
 import com.winster.glmall.glmallproduct.vo.AttrNoRelationVo;
 import com.winster.glmall.glmallproduct.vo.AttrVo;
+import com.winster.glmall.glmallproduct.vo.SkuItemVo;
 
 import java.util.List;
 import java.util.Map;
@@ -33,5 +34,7 @@ public interface AttrGroupService extends IService<AttrGroupEntity> {
     R saveAttrNoRelation(List<Map<String, Object>> params);
 
     List<AttrGroupWithAttrVo> getAttrGroupWithAttrByCatId(Long catelogId);
+
+    List<SkuItemVo.SpuItemAttrGroupVo> getAttrByAttrGroupWithAttrsBySpuId(Long catalogId, Long spuId);
 }
 

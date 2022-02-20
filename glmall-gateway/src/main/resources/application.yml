@@ -52,7 +52,11 @@ spring:
         - id: glmall_product_host_route
           uri: lb://glmall-product
           predicates:
-            - Host=**.glmall.com
+            - Host=glmall.com,item.gmall.com,item.glmall.com
+        - id: glmall_search_host_route
+          uri: lb://glmall-search
+          predicates:
+            - Host=search.glmall.com,search.gmall.com
 
 # 目标为glmall-product的请求：
 # http://localhost:999/api/glmallproduct/category/listWithTree

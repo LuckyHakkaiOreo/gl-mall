@@ -1,6 +1,5 @@
 package com.winster.glmall.glmallproduct.web;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.winster.glmall.glmallproduct.entity.CategoryEntity;
 import com.winster.glmall.glmallproduct.service.CategoryService;
 import com.winster.glmall.glmallproduct.vo.Catelog2V0;
@@ -21,7 +20,7 @@ public class IndexController {
 
     @GetMapping({"/","/index.html"})
     public String index(Model model){
-        List<CategoryEntity> level1 = categoryService.list(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        List<CategoryEntity> level1 = categoryService.findFirstLevelCategory(1l,"handsome");
         model.addAttribute("categorys", level1);
         return "index";
     }
@@ -31,6 +30,14 @@ public class IndexController {
     public Map<String, List<Catelog2V0>> getCatalogJson(){
         Map<String, List<Catelog2V0>> map = categoryService.getCatalogJson();
         return map;
+    }
+
+    @GetMapping("/hello")
+    @ResponseBody
+    public String hello(){
+
+
+        return "hello";
     }
 
 

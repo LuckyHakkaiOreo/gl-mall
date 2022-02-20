@@ -29,7 +29,16 @@
 ##      exposure:
 ##        include: *
 spring:
-  thymeleaf:
-    cache: false
-    prefix: classpath:/templates/
-    suffix: .html
+  redis:
+    host: 192.168.0.196
+    port: 6379
+    password: 123456
+  cache:
+    type: redis
+    redis:
+      time-to-live: 360000
+glmall:
+  thread:
+    core-size: 20
+    max-size: 200
+    keep-alive-time: 10

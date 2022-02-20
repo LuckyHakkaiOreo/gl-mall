@@ -12,14 +12,13 @@ import com.winster.glmall.glmallproduct.dao.AttrAttrgroupRelationDao;
 import com.winster.glmall.glmallproduct.dao.AttrDao;
 import com.winster.glmall.glmallproduct.dao.AttrGroupDao;
 import com.winster.glmall.glmallproduct.dao.CategoryDao;
-import com.winster.glmall.glmallproduct.entity.AttrAttrgroupRelationEntity;
-import com.winster.glmall.glmallproduct.entity.AttrEntity;
-import com.winster.glmall.glmallproduct.entity.AttrGroupEntity;
-import com.winster.glmall.glmallproduct.entity.CategoryEntity;
+import com.winster.glmall.glmallproduct.entity.*;
 import com.winster.glmall.glmallproduct.service.AttrGroupService;
+import com.winster.glmall.glmallproduct.service.ProductAttrValueService;
 import com.winster.glmall.glmallproduct.vo.AttrGroupWithAttrVo;
 import com.winster.glmall.glmallproduct.vo.AttrNoRelationVo;
 import com.winster.glmall.glmallproduct.vo.AttrVo;
+import com.winster.glmall.glmallproduct.vo.SkuItemVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -47,6 +46,9 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
 
     @Resource
     private CategoryDao categoryDao;
+
+    @Resource
+    private ProductAttrValueService productAttrValueService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -255,6 +257,53 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         }).collect(Collectors.toList());
 
         return vos;
+    }
+
+    @Override
+    public List<SkuItemVo.SpuItemAttrGroupVo> getAttrByAttrGroupWithAttrsBySpuId(Long catalogId, Long spuId) {
+        // 1.查询当前spu下所有的属性分组，并且查询其基本属性的名字和值，
+        // 查出分类下所有分组
+        QueryWrapper<AttrGroupEntity> w1 = new QueryWrapper<>();
+        w1.eq("catelog_id", catalogId);
+        List<AttrGroupEntity> attrGroupEntities = attrGroupDao.selectList(w1);
+        List<Long> attrGroupIds = attrGroupEntities.stream().map(AttrGroupEntity::getAttrGroupId).collect(Collectors.toList());
+
+        // 查出所有分组里所有的属性
+        QueryWrapper<AttrAttrgroupRelationEntity> w2 = new QueryWrapper<>();
+        w2.in("attr_group_id",attrGroupIds);
+        List<AttrAttrgroupRelationEntity> attrAttrgroupRelationEntities = attrAttrgroupRelationDao.selectList(w2);
+
+        // 查出spu在分组中，对应的属性
+        QueryWrapper<ProductAttrValueEntity> w = new QueryWrapper<>();
+        w.eq("spu_id",spuId);
+        List<ProductAttrValueEntity> spuAttrs = productAttrValueService.list(w);
+
+        // 获取结果返回
+        List<SkuItemVo.SpuItemAttrGroupVo> result = attrGroupEntities.stream().map(item -> {
+            SkuItemVo.SpuItemAttrGroupVo vo = new SkuItemVo.SpuItemAttrGroupVo();
+            vo.setGroupName(item.getAttrGroupName());
+
+            // 获取当前分组下所有的属性id
+            List<Long> agrs = attrAttrgroupRelationEntities.stream()
+                    .filter(agr -> agr.getAttrGroupId().equals(item.getAttrGroupId()))
+                    .map(AttrAttrgroupRelationEntity::getAttrId).collect(Collectors.toList());
+
+            List<SkuItemVo.SpuBaseAttrVo> attrVos = new ArrayList<>();
+            if (!CollectionUtils.isEmpty(agrs)) {
+                attrVos = spuAttrs.stream()
+                        .filter(sa -> agrs.contains(sa.getAttrId()))
+                        .map(sa -> {
+                            SkuItemVo.SpuBaseAttrVo vo1 = new SkuItemVo.SpuBaseAttrVo();
+                            vo1.setAttrName(sa.getAttrName());
+                            vo1.setAttrValue(sa.getAttrValue());
+                            return vo1;
+                        }).collect(Collectors.toList());
+            }
+            vo.setAttrs(attrVos);
+            return vo;
+        }).collect(Collectors.toList());
+
+        return result;
     }
 
 }

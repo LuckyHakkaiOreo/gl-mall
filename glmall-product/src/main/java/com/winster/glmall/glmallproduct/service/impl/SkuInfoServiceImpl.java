@@ -14,6 +14,7 @@ import com.winster.glmall.glmallproduct.entity.*;
 import com.winster.glmall.glmallproduct.feign.ThirdPartyFeign;
 import com.winster.glmall.glmallproduct.feign.WareFeign;
 import com.winster.glmall.glmallproduct.service.*;
+import com.winster.glmall.glmallproduct.vo.SkuItemVo;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,9 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Collectors;
 
 
@@ -103,14 +107,14 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         // 2.获取所有的品牌数据
         Set<Long> brandIds = list.stream().map(SkuInfoEntity::getBrandId).collect(Collectors.toSet());
         List<BrandEntity> brandEntities = brandService.listByIds(brandIds);
-        Map<Long, BrandEntity>  m1 = new HashMap<>();
+        Map<Long, BrandEntity> m1 = new HashMap<>();
         if (!CollectionUtils.isEmpty(brandEntities)) {
             m1 = brandEntities.stream().collect(Collectors.toMap(BrandEntity::getBrandId, item -> item));
         }
         // 3.获取所有的分类数据
         Set<Long> catalogIds = list.stream().map(SkuInfoEntity::getCatalogId).collect(Collectors.toSet());
         List<CategoryEntity> categoryEntities = categoryService.listByIds(catalogIds);
-        Map<Long, CategoryEntity>  m2 = new HashMap<>();
+        Map<Long, CategoryEntity> m2 = new HashMap<>();
         if (!CollectionUtils.isEmpty(categoryEntities)) {
             m2 = categoryEntities.stream().collect(Collectors.toMap(CategoryEntity::getCatId, item -> item));
         }
@@ -135,7 +139,11 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             skuESTo.setSkuImg(skuInfoEntity.getSkuDefaultImg());
 
             // hasStock,从glmall-ware系统查出来
-            skuESTo.setHasStock(m3.get(skuESTo.getSkuId()));
+            if (m3.get(skuESTo.getSkuId()) != null) {
+                skuESTo.setHasStock(true);
+            } else {
+                skuESTo.setHasStock(false);
+            }
 
             // TODO hotScore,暂时给0
             skuESTo.setHotScore(0L);
@@ -143,8 +151,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             BrandEntity brandEntity = finalM.get(skuInfoEntity.getBrandId());
             skuESTo.setBrandName(brandEntity.getName());
             skuESTo.setBrandImg(brandEntity.getLogo());
-            // 去分类表查 catalogName
+            // catelogId,去分类表查 catalogName
             CategoryEntity categoryEntity = finalM1.get(skuInfoEntity.getCatalogId());
+            skuESTo.setCatelogId(categoryEntity.getCatId());
             skuESTo.setCatalogName(categoryEntity.getName());
 
             // 设置sku的基础属性列表，每一个sku的spu规格参数都是冗余存储的，这块查询可以放到迭代外边
@@ -161,7 +170,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         } catch (IOException e) {
             // TODO 7.如果发生io异常，我们需要启用重试机制
         }
-        if (r.get("code").equals(0)){
+        if (r.get("code").equals(0)) {
             esResult = true;
         }
 
@@ -176,6 +185,72 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     }
 
+    @Resource
+    private SkuImagesService skuImagesService;
+
+    @Resource
+    private SpuInfoDescService spuInfoDescService;
+
+    @Resource
+    private AttrGroupService attrGroupService;
+
+    @Resource
+    private SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @Resource
+    private ThreadPoolExecutor threadPoolExecutor;
+
+    @Override
+    public SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException {
+        SkuItemVo skuItemVo = new SkuItemVo();
+
+        // 1.获取sku的基本信息 pms_sku_info
+        CompletableFuture<SkuInfoEntity> infoFuture = CompletableFuture.supplyAsync(() -> {
+            SkuInfoEntity info = getById(skuId);
+            skuItemVo.setInfo(info);
+            return info;
+        }, threadPoolExecutor);
+
+        // 3.获取sku的销售属性组合 pms_sku_sale_attr_value
+        CompletableFuture<Void> saleAttrFuture = infoFuture.thenAcceptAsync(result -> {
+            Long spuId = result.getSpuId();
+            List<SkuItemVo.ItemSaleAttrVo> saleAttrs = skuSaleAttrValueService.getSaleAttrsBySpuId(spuId);
+            skuItemVo.setSaleAttrs(saleAttrs);
+        }, threadPoolExecutor);
+
+        // 4.获取spu的介绍 pms_spu_info_desc
+        CompletableFuture<Void> descFuture = infoFuture.thenAcceptAsync(result -> {
+            Long spuId = result.getSpuId();
+            QueryWrapper<SpuInfoDescEntity> spuInfoDescWrapper = new QueryWrapper<>();
+            spuInfoDescWrapper.eq("spu_id", spuId);
+            List<SpuInfoDescEntity> list = spuInfoDescService.list(spuInfoDescWrapper);
+            skuItemVo.setDesp(CollectionUtils.isEmpty(list) ? null : list.get(0));
+        }, threadPoolExecutor);
+
+        // 5.获取规格参数信息
+        CompletableFuture<Void> baseAttrFuture = infoFuture.thenAcceptAsync(result -> {
+            Long spuId = result.getSpuId();
+            Long catalogId = result.getCatalogId();
+            // pms_product_attr_value,pms_attr_attrgroup_relation, pms_attr_group
+            List<SkuItemVo.SpuItemAttrGroupVo> groupAttrs = attrGroupService.getAttrByAttrGroupWithAttrsBySpuId(catalogId, spuId);
+            skuItemVo.setGroupAttrs(groupAttrs);
+        }, threadPoolExecutor);
+
+        // 2.获取sku的图片信息 pms_sku_images
+        CompletableFuture<Void> imgFuture = CompletableFuture.runAsync(() -> {
+            QueryWrapper<SkuImagesEntity> imgWrapper = new QueryWrapper<>();
+            imgWrapper.eq("sku_id", skuId);
+            List<SkuImagesEntity> images = skuImagesService.list(imgWrapper);
+            skuItemVo.setImages(images);
+        }, threadPoolExecutor);
+
+        // 等待以上异步任务都完成才返回
+        CompletableFuture.allOf(infoFuture, baseAttrFuture, saleAttrFuture, descFuture, imgFuture)
+                .get();
+
+        return skuItemVo;
+    }
+
     private List<AttrESTo> findValidAttrs(Long spuId) {
         QueryWrapper<ProductAttrValueEntity> w1 = new QueryWrapper<>();
         w1.eq("spu_id", spuId);
@@ -183,6 +258,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         List<AttrESTo> attrs = new ArrayList<>();
         if (!CollectionUtils.isEmpty(productAttrValueEntities)) {
             List<Long> aIds = productAttrValueEntities.stream().map(ProductAttrValueEntity::getAttrId).collect(Collectors.toList());
+            Map<Long, List<ProductAttrValueEntity>> map = productAttrValueEntities.stream().collect(Collectors.groupingBy(ProductAttrValueEntity::getAttrId));
+
             QueryWrapper<AttrEntity> w2 = new QueryWrapper<>();
             w2.in("attr_id", aIds).eq("enable", 1).eq("show_desc", 1);
             List<AttrEntity> list1 = attrService.list(w2);
@@ -190,7 +267,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
                 attrs = list1.stream().map(item -> {
                     AttrESTo attrESTo = new AttrESTo();
                     BeanUtils.copyProperties(item, attrESTo);
-                    attrESTo.setAttrValue(item.getValueSelect());
+                    List<ProductAttrValueEntity> entities = map.get(item.getAttrId());
+                    attrESTo.setAttrValue(entities != null ? entities.get(0).getAttrValue() : "");
                     return attrESTo;
                 }).collect(Collectors.toList());
             }
