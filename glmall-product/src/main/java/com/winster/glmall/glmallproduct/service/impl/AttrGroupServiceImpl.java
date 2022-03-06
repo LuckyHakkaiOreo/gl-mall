@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.winster.common.constant.ProductConstant;
-import com.winster.common.exception.ExceptionEnum;
+import com.winster.common.exception.BizCodeEnum;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.Query;
 import com.winster.common.utils.R;
@@ -202,7 +202,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
         //      * [{attrId: 14, attrGroupId: 4}]
         if (CollectionUtils.isEmpty(params)
                 || !(params.get(0).containsKey("attrId") || params.get(0).containsKey("attrGroupId"))) {
-            return R.error(ExceptionEnum.VALID_PARAMS_EXCEPTION.getCode(), "未包含指定参数，格式：[{attrId: 14, attrGroupId: 4}]");
+            return R.error(BizCodeEnum.VALID_PARAMS_EXCEPTION.getCode(), "未包含指定参数，格式：[{attrId: 14, attrGroupId: 4}]");
         }
 
         // 批量新增

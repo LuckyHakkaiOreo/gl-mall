@@ -1,6 +1,6 @@
-package com.winster.thirdpartyserver.minio.exception;
+package com.winster.glmall.glmallsearch.exception;
 
-import com.winster.common.exception.ExceptionEnum;
+import com.winster.common.exception.BizCodeEnum;
 import com.winster.common.utils.R;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindingResult;
@@ -16,7 +16,7 @@ import java.util.List;
 @ResponseBody*/
 @Slf4j
 @RestControllerAdvice
-public class MinioExceptionControllerAdvice {
+public class GlmallSearchExceptionControllerAdvice {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R handleParamsValidException(MethodArgumentNotValidException exception) {
@@ -30,13 +30,13 @@ public class MinioExceptionControllerAdvice {
                 map.put(objectError.getField(), objectError.getDefaultMessage());
             });
         }
-        return R.error(ExceptionEnum.VALID_PARAMS_EXCEPTION.getCode(), ExceptionEnum.VALID_PARAMS_EXCEPTION.getMsg())
+        return R.error(BizCodeEnum.VALID_PARAMS_EXCEPTION.getCode(), BizCodeEnum.VALID_PARAMS_EXCEPTION.getMsg())
                 .put("data", map);
     }
 
     @ExceptionHandler(Throwable.class)
     public R handleAllThrowable(Throwable t) {
         log.error("系统出现未知异常！", t);
-        return R.error(ExceptionEnum.UNKNOW_EXCEPTION.getCode(), ExceptionEnum.UNKNOW_EXCEPTION.getMsg());
+        return R.error(BizCodeEnum.UNKNOW_EXCEPTION.getCode(), BizCodeEnum.UNKNOW_EXCEPTION.getMsg());
     }
 }

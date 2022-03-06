@@ -37,6 +37,8 @@ spring:
     type: redis
     redis:
       time-to-live: 360000
+  session:
+    store-type: redis
 glmall:
   thread:
     core-size: 20

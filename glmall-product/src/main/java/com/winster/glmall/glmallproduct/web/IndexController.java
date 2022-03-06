@@ -3,6 +3,7 @@ package com.winster.glmall.glmallproduct.web;
 import com.winster.glmall.glmallproduct.entity.CategoryEntity;
 import com.winster.glmall.glmallproduct.service.CategoryService;
 import com.winster.glmall.glmallproduct.vo.Catelog2V0;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,14 +19,18 @@ public class IndexController {
     @Resource
     private CategoryService categoryService;
 
+    @Value("${spring.datasource.password}")
+    private String ppp;
+
     @GetMapping({"/","/index.html"})
     public String index(Model model){
         List<CategoryEntity> level1 = categoryService.findFirstLevelCategory(1l,"handsome");
         model.addAttribute("categorys", level1);
+        System.out.println(ppp);
         return "index";
     }
 
-    @GetMapping("index/catalog.json")
+    @GetMapping("index/json/catalog.json")
     @ResponseBody
     public Map<String, List<Catelog2V0>> getCatalogJson(){
         Map<String, List<Catelog2V0>> map = categoryService.getCatalogJson();

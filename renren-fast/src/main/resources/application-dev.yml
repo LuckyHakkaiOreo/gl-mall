@@ -4,7 +4,7 @@ spring:
         druid:
             driver-class-name: com.mysql.cj.jdbc.Driver
             # mysql 5.7的数据库需要配置：useSSL=false
-            url: jdbc:mysql://192.168.0.196:3306/glmall-admin?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
+            url: jdbc:mysql://192.168.0.196:3306/gulimall_admin?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false
             username: root
             password: 123456
             initial-size: 10

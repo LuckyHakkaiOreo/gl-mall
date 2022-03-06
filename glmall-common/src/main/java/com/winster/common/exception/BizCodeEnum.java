@@ -13,16 +13,22 @@ package com.winster.common.exception;
  * 4）13，购物车
  * 5）14，物流
  * 6)  15.  三方服务
+ * 7)  16.  认证服务
+ * 8)  17.  会员服务
  */
-public enum ExceptionEnum {
+public enum BizCodeEnum {
     UNKNOW_EXCEPTION(10000, "系统未知异常"),
     VALID_PARAMS_EXCEPTION(10001, "参数校验不通过"),
-    THIRD_EXCEPTION(15000, "三方服务es保存发生错误");
+    THIRD_ES_SAVE_EXCEPTION(15000, "三方服务es保存发生错误"),
+    AUTH_REPEAT_SEND_CODE_EXCEPTION(16000, "验证码获取频率太高"),
+    MEMBER_PHONE_UNIQUE_EXCEPTION(17000, "会员服务，手机必须唯一"),
+    MEMBER_USERNAME_UNIQUE_EXCEPTION(17001, "会员服务，用户名必须唯一"),
+    MEMBER_LOGIN_USERNAME_PASSWPRD_EXCEPTION(17002, "账号密码错误");
 
     private Integer code;
     private String msg;
 
-    ExceptionEnum(Integer code, String msg) {
+    BizCodeEnum(Integer code, String msg) {
         this.code = code;
         this.msg = msg;
     }

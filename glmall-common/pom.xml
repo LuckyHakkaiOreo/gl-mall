@@ -49,7 +49,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- 以下版本由 spring-boot-dependencies、 spring-cloud-alibaba-dependencies 统一指定 -->
+        <!-- ============== 以下版本由 spring-boot-dependencies、 spring-cloud-alibaba-dependencies 统一指定 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -84,6 +84,19 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
 
+        <!-- apache http client -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.ulisesbocchio</groupId>
+            <artifactId>jasypt-spring-boot-starter</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+
+
     </dependencies>
 
     <dependencyManagement>
@@ -101,6 +114,14 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
                 <version>2.3.12.RELEASE</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.session</groupId>
+                <artifactId>spring-session-bom</artifactId>
+                <version>2021.1.1</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

@@ -1,6 +1,6 @@
 package com.winster.thirdpartyserver.es.controller;
 
-import com.winster.common.exception.ExceptionEnum;
+import com.winster.common.exception.BizCodeEnum;
 import com.winster.common.to.es.SkuESTo;
 import com.winster.common.utils.R;
 import com.winster.thirdpartyserver.es.service.ESSkuInfoService;
@@ -29,6 +29,6 @@ public class ESSkuInfoController {
         if (b) {
             return R.ok();
         }
-        return R.error(ExceptionEnum.THIRD_EXCEPTION);
+        return R.error(BizCodeEnum.THIRD_ES_SAVE_EXCEPTION);
     }
 }
