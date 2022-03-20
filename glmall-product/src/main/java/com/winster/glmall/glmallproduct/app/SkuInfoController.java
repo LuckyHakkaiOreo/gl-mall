@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-
 
 
 /**
@@ -25,12 +25,17 @@ public class SkuInfoController {
     @Autowired
     private SkuInfoService skuInfoService;
 
+    @RequestMapping("/getSkuInfoListByIds")
+    public List<SkuInfoEntity> getSkuInfoListByIds(@RequestParam List<Long> skuIds) {
+        return skuInfoService.getSkuInfoListByIds(skuIds);
+    }
+
     /**
      * 列表
      */
     @RequestMapping("/list")
     // @RequiresPermissions("glmallproduct:skuinfo:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = skuInfoService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -42,8 +47,8 @@ public class SkuInfoController {
      */
     @RequestMapping("/info/{skuId}")
     // @RequiresPermissions("glmallproduct:skuinfo:info")
-    public R info(@PathVariable("skuId") Long skuId){
-		SkuInfoEntity skuInfo = skuInfoService.getById(skuId);
+    public R info(@PathVariable("skuId") Long skuId) {
+        SkuInfoEntity skuInfo = skuInfoService.getById(skuId);
 
         return R.ok().put("skuInfo", skuInfo);
     }
@@ -53,8 +58,8 @@ public class SkuInfoController {
      */
     @RequestMapping("/save")
     // @RequiresPermissions("glmallproduct:skuinfo:save")
-    public R save(@RequestBody SkuInfoEntity skuInfo){
-		skuInfoService.save(skuInfo);
+    public R save(@RequestBody SkuInfoEntity skuInfo) {
+        skuInfoService.save(skuInfo);
 
         return R.ok();
     }
@@ -64,8 +69,8 @@ public class SkuInfoController {
      */
     @RequestMapping("/update")
     // @RequiresPermissions("glmallproduct:skuinfo:update")
-    public R update(@RequestBody SkuInfoEntity skuInfo){
-		skuInfoService.updateById(skuInfo);
+    public R update(@RequestBody SkuInfoEntity skuInfo) {
+        skuInfoService.updateById(skuInfo);
 
         return R.ok();
     }
@@ -75,8 +80,8 @@ public class SkuInfoController {
      */
     @RequestMapping("/delete")
     // @RequiresPermissions("glmallproduct:skuinfo:delete")
-    public R delete(@RequestBody Long[] skuIds){
-		skuInfoService.removeByIds(Arrays.asList(skuIds));
+    public R delete(@RequestBody Long[] skuIds) {
+        skuInfoService.removeByIds(Arrays.asList(skuIds));
 
         return R.ok();
     }

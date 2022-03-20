@@ -251,6 +251,11 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         return skuItemVo;
     }
 
+    @Override
+    public List<SkuInfoEntity> getSkuInfoListByIds(List<Long> skuIds) {
+        return this.list(new QueryWrapper<SkuInfoEntity>().in("sku_id", skuIds));
+    }
+
     private List<AttrESTo> findValidAttrs(Long spuId) {
         QueryWrapper<ProductAttrValueEntity> w1 = new QueryWrapper<>();
         w1.eq("spu_id", spuId);

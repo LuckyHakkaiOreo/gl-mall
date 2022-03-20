@@ -1,5 +1,6 @@
 package com.winster.glmall.glmallware.controller;
 
+import com.winster.common.to.WareSkuLockTo;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
 import com.winster.glmall.glmallware.entity.WareSkuEntity;
@@ -25,8 +26,18 @@ public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
 
+    @PostMapping("/lock/order")
+    public R orderLockStock(@RequestBody WareSkuLockTo to) {
+        Boolean b = wareSkuService.orderLockStock(to);
+        if (b)
+            return R.ok("库存锁定成功！");
+        else
+            return R.error(-1, "订单" + to.getOrderSn() + "商品锁定失败");
+    }
+
     /**
-     *  查询多个指定sku的库存信息
+     * 查询多个指定sku的库存信息
+     *
      * @return
      */
     @PostMapping("/wareskubyids")
@@ -41,7 +52,7 @@ public class WareSkuController {
      */
     @RequestMapping("/list")
     // @RequiresPermissions("glmallWare:waresku:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = wareSkuService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -53,8 +64,8 @@ public class WareSkuController {
      */
     @RequestMapping("/info/{id}")
     // @RequiresPermissions("glmallWare:waresku:info")
-    public R info(@PathVariable("id") Long id){
-		WareSkuEntity wareSku = wareSkuService.getById(id);
+    public R info(@PathVariable("id") Long id) {
+        WareSkuEntity wareSku = wareSkuService.getById(id);
 
         return R.ok().put("wareSku", wareSku);
     }
@@ -64,8 +75,8 @@ public class WareSkuController {
      */
     @RequestMapping("/save")
     // @RequiresPermissions("glmallWare:waresku:save")
-    public R save(@RequestBody WareSkuEntity wareSku){
-		wareSkuService.save(wareSku);
+    public R save(@RequestBody WareSkuEntity wareSku) {
+        wareSkuService.save(wareSku);
 
         return R.ok();
     }
@@ -75,8 +86,8 @@ public class WareSkuController {
      */
     @RequestMapping("/update")
     // @RequiresPermissions("glmallWare:waresku:update")
-    public R update(@RequestBody WareSkuEntity wareSku){
-		wareSkuService.updateById(wareSku);
+    public R update(@RequestBody WareSkuEntity wareSku) {
+        wareSkuService.updateById(wareSku);
 
         return R.ok();
     }
@@ -86,8 +97,8 @@ public class WareSkuController {
      */
     @RequestMapping("/delete")
     // @RequiresPermissions("glmallWare:waresku:delete")
-    public R delete(@RequestBody Long[] ids){
-		wareSkuService.removeByIds(Arrays.asList(ids));
+    public R delete(@RequestBody Long[] ids) {
+        wareSkuService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

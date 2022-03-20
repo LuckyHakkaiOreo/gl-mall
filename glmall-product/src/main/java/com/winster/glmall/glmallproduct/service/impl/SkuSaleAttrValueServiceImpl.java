@@ -15,7 +15,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 
@@ -85,6 +87,18 @@ public class SkuSaleAttrValueServiceImpl extends ServiceImpl<SkuSaleAttrValueDao
         }).collect(Collectors.toList());
 
         return result;
+    }
+
+    @Override
+    public List<String> getSkuSaleAttrValues(Long skuId) {
+        QueryWrapper<SkuSaleAttrValueEntity> w = new QueryWrapper<>();
+        w.eq("sku_id", skuId);
+        List<SkuSaleAttrValueEntity> list = this.list(w);
+        List<String> r = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(list)) {
+            r = list.stream().map(i -> i.getAttrValue()).collect(Collectors.toList());
+        }
+        return r;
     }
 
 }

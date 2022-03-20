@@ -1,6 +1,7 @@
 package com.winster.glmall.glmallware.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.winster.common.to.WareSkuLockTo;
 import com.winster.common.utils.PageUtils;
 import com.winster.glmall.glmallware.entity.PurchaseDetailEntity;
 import com.winster.glmall.glmallware.entity.WareSkuEntity;
@@ -22,5 +23,7 @@ public interface WareSkuService extends IService<WareSkuEntity> {
     void addStock(List<PurchaseDetailEntity> purchaseDetailEntities);
 
     List<WareSkuEntity> getWareSkuByskuIds(List<Long> skuIds);
+
+    Boolean orderLockStock(WareSkuLockTo to);
 }
 

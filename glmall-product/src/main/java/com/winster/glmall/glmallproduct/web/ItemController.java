@@ -29,6 +29,7 @@ public class ItemController {
         log.info("展示sku{}的详情...", skuId);
 
         SkuItemVo vo = skuInfoService.item(skuId);
+        vo.setSkuId(skuId);
         model.addAttribute("item", vo);
 
         return "item";

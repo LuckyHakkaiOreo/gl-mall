@@ -9,6 +9,7 @@ import java.util.List;
 
 @Data
 public class SkuItemVo {
+    private Long skuId;
     // 1.获取sku的基本信息 pms_sku_info
     private  SkuInfoEntity info;
 

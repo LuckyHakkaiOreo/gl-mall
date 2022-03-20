@@ -58,6 +58,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Resource
     private MemberFeign memberFeign;
 
+    @Resource
+    private BrandService brandService;
+
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -81,8 +84,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             wrapper.eq("catalog_id", catelogId);
         }
 
-        if (StringUtils.isNotBlank(key)){
-            wrapper.and(w->w.eq("id", key).or().like("spu_name",key));
+        if (StringUtils.isNotBlank(key)) {
+            wrapper.and(w -> w.eq("id", key).or().like("spu_name", key));
         }
 
         IPage<SpuInfoEntity> page = this.page(
@@ -196,7 +199,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 skuImagesEntity.setImgUrl(image.getImgUrl());
                 skuImagesEntity.setDefaultImg(image.getDefaultImg());
                 return skuImagesEntity;
-            }).filter(i-> StringUtils.isNotBlank(i.getImgUrl())).collect(Collectors.toList());
+            }).filter(i -> StringUtils.isNotBlank(i.getImgUrl())).collect(Collectors.toList());
             if (!CollectionUtils.isEmpty(skuImagesEntities)) {
                 skuImagesService.saveBatch(skuImagesEntities);
             }
@@ -249,6 +252,39 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             }
 
         });
+    }
+
+    @Override
+    public List<SpuInfoWithSkuIdTo> getSpuListBySkuIds(List<Long> skuIds) {
+
+        List<SkuInfoEntity> skuList = skuInfoService.getSkuInfoListByIds(skuIds);
+        if (CollectionUtils.isEmpty(skuList)) {
+            return null;
+        }
+
+        List<Long> spuIds = skuList.stream().map(SkuInfoEntity::getSpuId).collect(Collectors.toList());
+        List<Long> brandIds = skuList.stream().map(SkuInfoEntity::getBrandId).collect(Collectors.toList());
+        List<SpuInfoEntity> spuList = this.listByIds(spuIds);
+
+        List<BrandEntity> brandList = brandService.listByIds(brandIds);
+
+        if (CollectionUtils.isEmpty(spuList)) {
+            return null;
+        }
+
+        List<SpuInfoWithSkuIdTo> result = spuList.stream().map(item -> {
+            SpuInfoWithSkuIdTo spuInfoWithSkuId = new SpuInfoWithSkuIdTo();
+            List<Long> ids = skuList.stream().filter(i -> i.getSpuId().equals(item.getId())).map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+            SpuInfoTo spuInfoTo = new SpuInfoTo();
+            BeanUtils.copyProperties(item, spuInfoTo);
+            String brandName = brandList.stream().filter(b -> b.getBrandId().equals(spuInfoTo.getBrandId())).map(BrandEntity::getName).findAny().get();
+            spuInfoTo.setBrandName(brandName);
+            spuInfoWithSkuId.setSpuInfo(spuInfoTo);
+            spuInfoWithSkuId.setSkuIds(ids);
+            return spuInfoWithSkuId;
+        }).collect(Collectors.toList());
+
+        return result;
     }
 
 }

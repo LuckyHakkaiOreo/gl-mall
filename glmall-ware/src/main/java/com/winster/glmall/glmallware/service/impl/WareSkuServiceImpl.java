@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.winster.common.to.OrderItemTo;
+import com.winster.common.to.WareSkuLockTo;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.Query;
 import com.winster.glmall.glmallware.dao.WareSkuDao;
@@ -14,8 +16,11 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 
 @Service("wareSkuService")
@@ -71,7 +76,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             target.setStock(e.getSkuNum() + target.getStock());
             UpdateWrapper<WareSkuEntity> w = new UpdateWrapper<>();
             w.eq("sku_id", e.getSkuId()).eq("ware_id", e.getWareId());
-            this.update(target,w);
+            this.update(target, w);
         });
 
     }
@@ -82,6 +87,61 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
         w.in("sku_id", skuIds);
         List<WareSkuEntity> list = this.list(w);
         return list;
+    }
+
+    /**
+     * 为某个订单锁定库存
+     *
+     * @param to
+     * @return
+     */
+    @Override
+    public Boolean orderLockStock(WareSkuLockTo to) {
+        // 为所有商品锁定库存，有一个商品失败，本次锁定都失败
+
+        // todo 按照下单的地址，找到就近的仓库，锁定商品库存，这里不实现
+
+        // 1. 找到商品在库存中的信息
+        List<OrderItemTo> itemList = to.getLocks();
+        List<Long> skuIds = itemList.stream().map(OrderItemTo::getSkuId).collect(Collectors.toList());
+        QueryWrapper<WareSkuEntity> w = new QueryWrapper<>();
+        w.in("sku_id", skuIds);
+        List<WareSkuEntity> wareSkuEntityList = this.list(w);
+        // 针对商品对库存进行分组
+        Map<Long, List<WareSkuEntity>> wsMap = wareSkuEntityList.stream().collect(Collectors.groupingBy(WareSkuEntity::getSkuId));
+
+        // 锁定指定商品的库存
+        for (Map.Entry<Long, List<WareSkuEntity>> entry : wsMap.entrySet()) {
+            Long skuId = entry.getKey();
+            List<WareSkuEntity> wareSkuEntities = entry.getValue();
+
+            if (CollectionUtils.isEmpty(wareSkuEntities)) {
+                throw new RuntimeException(skuId + "商品没有库存了");
+            }
+
+            AtomicReference<Boolean> allFail = new AtomicReference<>(true);
+            wareSkuEntities.forEach(wareSkuEntity -> {
+                OrderItemTo orderItemTo = itemList.stream().filter(item -> item.getSkuId().equals(skuId)).findAny().get();
+                // 需要锁定的库存
+                Integer lockNum = orderItemTo.getCount();
+                if (lockNum + wareSkuEntity.getStockLocked() > wareSkuEntity.getStock()) {
+                    // 当前仓库数量不够，需要换下一个仓库来尝试锁定
+                    return;
+                }
+                // 只要有一个仓库能够锁定，就不算失败
+                wareSkuEntity.setStockLocked(lockNum + wareSkuEntity.getStockLocked());
+                allFail.set(false);
+            });
+
+            if (allFail.get()) {
+                throw new RuntimeException(skuId + "商品锁定库存失败");
+            }
+        }
+        // 保存库存数据
+        List<WareSkuEntity> entityList = wsMap.values().stream().flatMap(Collection::stream).collect(Collectors.toList());
+        this.updateBatchById(entityList);
+
+        return true;
     }
 
 }

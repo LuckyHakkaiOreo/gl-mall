@@ -5,6 +5,7 @@ import com.winster.common.utils.PageUtils;
 import com.winster.glmall.glmallproduct.entity.SkuInfoEntity;
 import com.winster.glmall.glmallproduct.vo.SkuItemVo;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -22,5 +23,7 @@ public interface SkuInfoService extends IService<SkuInfoEntity> {
     void skuUp(Long spuId);
 
     SkuItemVo item(Long skuId) throws ExecutionException, InterruptedException;
+
+    List<SkuInfoEntity> getSkuInfoListByIds(List<Long> skuIds);
 }
 

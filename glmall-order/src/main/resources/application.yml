@@ -12,3 +12,59 @@
 #  global-config:
 #    db-config:
 #      id-type: auto
+
+# rabbitmq默认使用了guest用户密码
+spring:
+  rabbitmq:
+    host: 192.168.0.196
+    virtual-host: /
+    port: 5672
+    # 发送者要确认消息到达服务器
+    publisher-confirm-type: correlated
+    # 发送者要确认消息投递到消息队列
+    publisher-returns: true
+    template:
+      # 只要抵达队列，以异步模式优先回调returnConfirm
+      mandatory: true
+    # 消费者对消息的acknowledge的模式
+    listener:
+      simple:
+        # manual需要消息消费者手动确认消息的消费
+        acknowledge-mode: manual
+  redis:
+    host: 192.168.0.196
+    port: 6379
+    password: 123456
+  session:
+    store-type: redis
+# 线程池配置
+glmall:
+  thread:
+    core-size: 20
+    max-size: 200
+    keep-alive-time: 10
+
+#seata:
+#  service:
+#    disable-global-transaction: false
+#    vgroup-mapping:
+#      default_tx_group: default
+#  registry:
+#    type: nacos
+#    nacos:
+#      server-addr: 192.168.0.196:8848
+#      namespace: 32b86e73-f386-4028-9d7a-754f4fd64263
+#      application: seata-server
+#      cluster: default
+#      group: SEATA_GROUP
+#  config:
+#    nacos:
+#      server-addr: 192.168.0.196:8848
+#      namespace: 32b86e73-f386-4028-9d7a-754f4fd64263
+#      group: SEATA_GROUP
+#    type: nacos
+#  tx-service-group: default_tx_group
+
+# 幸运的是，1.3.0以后，seata会自动代理数据源了，不需要我们再自己配置代理数据源，这块要清楚
+#seata:
+#  enable-auto-data-source-proxy: true

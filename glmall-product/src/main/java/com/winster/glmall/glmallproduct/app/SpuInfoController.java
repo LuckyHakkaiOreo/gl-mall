@@ -1,5 +1,6 @@
 package com.winster.glmall.glmallproduct.app;
 
+import com.winster.common.to.SpuInfoWithSkuIdTo;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
 import com.winster.glmall.glmallproduct.entity.SpuInfoEntity;
@@ -10,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
-
 
 
 /**
@@ -32,11 +33,26 @@ public class SpuInfoController {
 
     /**
      * 将指定spu下的所有sku商品都上架到es
+     *
+     * @param skuIds
+     * @return
+     */
+    @PostMapping("/spuListBySkuIds")
+    @ResponseBody
+    public List<SpuInfoWithSkuIdTo> getSpuListBySkuIds(@RequestParam("skuIds") List<Long> skuIds) {
+        List<SpuInfoWithSkuIdTo> list = spuInfoService.getSpuListBySkuIds(skuIds);
+//        skuInfoService.skuUp(spuId);
+        return list;
+    }
+
+    /**
+     * 将指定spu下的所有sku商品都上架到es
+     *
      * @param spuId
      * @return
      */
     @PostMapping("/{spuId}/up")
-    public R skuUp(@PathVariable("spuId") Long spuId){
+    public R skuUp(@PathVariable("spuId") Long spuId) {
         skuInfoService.skuUp(spuId);
         return R.ok();
     }
@@ -46,7 +62,7 @@ public class SpuInfoController {
      */
     @RequestMapping("/list")
     // @RequiresPermissions("glmallproduct:spuinfo:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = spuInfoService.queryPage(params);
 
         return R.ok().put("page", page);
@@ -58,8 +74,8 @@ public class SpuInfoController {
      */
     @RequestMapping("/info/{id}")
     // @RequiresPermissions("glmallproduct:spuinfo:info")
-    public R info(@PathVariable("id") Long id){
-		SpuInfoEntity spuInfo = spuInfoService.getById(id);
+    public R info(@PathVariable("id") Long id) {
+        SpuInfoEntity spuInfo = spuInfoService.getById(id);
 
         return R.ok().put("spuInfo", spuInfo);
     }
@@ -69,8 +85,8 @@ public class SpuInfoController {
      */
     @PostMapping("/save")
     // @RequiresPermissions("glmallproduct:spuinfo:save")
-    public R save(@RequestBody SpuInfoVo spuInfo){
-		spuInfoService.saveSpuInfo(spuInfo);
+    public R save(@RequestBody SpuInfoVo spuInfo) {
+        spuInfoService.saveSpuInfo(spuInfo);
 
         return R.ok();
     }
@@ -80,8 +96,8 @@ public class SpuInfoController {
      */
     @RequestMapping("/update")
     // @RequiresPermissions("glmallproduct:spuinfo:update")
-    public R update(@RequestBody SpuInfoEntity spuInfo){
-		spuInfoService.updateById(spuInfo);
+    public R update(@RequestBody SpuInfoEntity spuInfo) {
+        spuInfoService.updateById(spuInfo);
 
         return R.ok();
     }
@@ -91,8 +107,8 @@ public class SpuInfoController {
      */
     @RequestMapping("/delete")
     // @RequiresPermissions("glmallproduct:spuinfo:delete")
-    public R delete(@RequestBody Long[] ids){
-		spuInfoService.removeByIds(Arrays.asList(ids));
+    public R delete(@RequestBody Long[] ids) {
+        spuInfoService.removeByIds(Arrays.asList(ids));
 
         return R.ok();
     }

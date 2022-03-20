@@ -1,16 +1,17 @@
 package com.winster.glmall.glmallmember.service.impl;
 
-import org.springframework.stereotype.Service;
-import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.Query;
-
 import com.winster.glmall.glmallmember.dao.MemberReceiveAddressDao;
 import com.winster.glmall.glmallmember.entity.MemberReceiveAddressEntity;
 import com.winster.glmall.glmallmember.service.MemberReceiveAddressService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 
 @Service("memberReceiveAddressService")
@@ -24,6 +25,11 @@ public class MemberReceiveAddressServiceImpl extends ServiceImpl<MemberReceiveAd
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public List<MemberReceiveAddressEntity> getCurrentLoginUserAddressList(Long userId) {
+        return this.list(new QueryWrapper<MemberReceiveAddressEntity>().eq("member_id", userId));
     }
 
 }

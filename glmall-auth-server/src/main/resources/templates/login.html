@@ -33,6 +33,7 @@
             <p>
                 <span>谷粒商城不会以任何理由要求您转账汇款，谨防诈骗。</span>
             </p>
+            <p style="color: red" th:if="${session.loginErr!=null}"> [[${session.loginErr}]]</p>
         </div>
         <div class="si_cen">
             <h2 class="act btn1">扫码登录</h2>
@@ -58,7 +59,8 @@
                 请输入账户名和密码
             </div>
             <form action="/login" method="post">
-                <div style="color: red" th:text="${errors!=null && #maps.containsKey(errors,'msg')?errors.msg:''}"></div>
+                <div style="color: red"
+                     th:text="${errors!=null && #maps.containsKey(errors,'msg')?errors.msg:''}"></div>
                 <ul>
                     <li class="top_1">
                         <img src="/static/login/JD_img/user_03.png" class="err_img1"/>

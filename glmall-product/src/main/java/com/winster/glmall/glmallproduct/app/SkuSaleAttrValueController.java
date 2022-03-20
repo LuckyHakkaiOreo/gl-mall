@@ -1,19 +1,15 @@
 package com.winster.glmall.glmallproduct.app;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.winster.glmall.glmallproduct.entity.SkuSaleAttrValueEntity;
-import com.winster.glmall.glmallproduct.service.SkuSaleAttrValueService;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
+import com.winster.glmall.glmallproduct.entity.SkuSaleAttrValueEntity;
+import com.winster.glmall.glmallproduct.service.SkuSaleAttrValueService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -29,6 +25,13 @@ import com.winster.common.utils.R;
 public class SkuSaleAttrValueController {
     @Autowired
     private SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @RequestMapping("/strList/{skuId}")
+    public List<String> getSkuSaleAttrValues(@PathVariable("skuId") Long skuId) {
+
+        List<String> attrList = skuSaleAttrValueService.getSkuSaleAttrValues(skuId);
+        return attrList;
+    }
 
     /**
      * 列表
