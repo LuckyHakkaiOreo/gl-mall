@@ -25,10 +25,10 @@ import com.winster.glmall.glmallorder.service.OrderItemService;
 import com.winster.glmall.glmallorder.service.OrderService;
 import com.winster.glmall.glmallorder.to.OrderCreateTo;
 import com.winster.glmall.glmallorder.vo.*;
-import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
@@ -80,6 +80,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+
+    @Resource
+    private RabbitTemplate rabbitTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -185,25 +188,25 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     /**
+     * @param vo
+     * @return
      * @GlobalTransactional 开启seata分布式事务
      * seata的at自动提交模式，由于依赖全局锁实现机制，性能上是不好的，这种下单场景
      * 在业务上是属于高并发场景的，那么at模式并不适合用在这种地方
      * at模式适合的场景：非高并发业务
-     *
+     * <p>
      * 那么，我们可以考虑使用tcc模式
-     *
+     * <p>
      * 或者我们使用【最大努力通知】或者【可靠消息回滚】的异步消息补偿机制来完成
      * 高并发下，分布式事务的场景
-     * @param vo
-     * @return
      */
-    @GlobalTransactional
+//    @GlobalTransactional
     @Transactional
     @Override
     public OrderSubmitResponseVo submitOrder(OrderSubmitVo vo) {
-        log.info("com.winster.glmall.glmallorder.service.impl.OrderServiceImpl.submitOrder: s1==s2  =>  {}", orderService1==orderService2);
-        log.info("com.winster.glmall.glmallorder.service.impl.OrderServiceImpl.submitOrder: s1==this  =>  {}", orderService1==this);
-        log.info("com.winster.glmall.glmallorder.service.impl.OrderServiceImpl.submitOrder: s2==this  =>  {}", orderService2==this);
+        log.info("com.winster.glmall.glmallorder.service.impl.OrderServiceImpl.submitOrder: s1==s2  =>  {}", orderService1 == orderService2);
+        log.info("com.winster.glmall.glmallorder.service.impl.OrderServiceImpl.submitOrder: s1==this  =>  {}", orderService1 == this);
+        log.info("com.winster.glmall.glmallorder.service.impl.OrderServiceImpl.submitOrder: s2==this  =>  {}", orderService2 == this);
         // todo 下单操作：创建订单、验令牌、验价格、锁库存...
         MemberLoginedRes loginedRes = LoginUserInterceptor.loginedResThreadLocal.get();
         OrderSubmitResponseVo responseVo = new OrderSubmitResponseVo();
@@ -267,11 +270,37 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         orderItemService.saveBatch(orderItems);
 
         // todo 模拟异常
-        int i = 10/0;
+//        int i = 10/0;
 
         // 订单创建成功
         responseVo.setOrderEntity(orderEntity);
+
+        /*
+            must check 订单创建成功了，发送一个消息到order.delay.queue
+             这是一个延时队列，30分钟后会转发到order.release.queue
+             OrderCloseListener会查看对应的订单状态如果还是【未支付】，则会
+             自动关闭订单
+         */
+        try {
+            /*
+                todo 做好消息发送日志记录，发送失败的消息记录到数据库中。
+                 定时器 定时重发失败消息
+             */
+            rabbitTemplate.convertAndSend("order-event-exchange", "order.create.order", orderEntity);
+        } catch (Exception e) {
+
+        }
         return responseVo;
+    }
+
+    @Override
+    public void closeOrder(OrderEntity orderEntity) {
+        OrderEntity id = this.getOne(new QueryWrapper<OrderEntity>().eq("id", orderEntity.getId()));
+        // 如果订单仍旧是待付款则修改订单的状态
+        if (id.getStatus().equals(OrderStatusEnum.CREATE_NEW.getCode())) {
+            id.setStatus(OrderStatusEnum.CANCELED.getCode());
+            this.updateById(id);
+        }
     }
 
     /**

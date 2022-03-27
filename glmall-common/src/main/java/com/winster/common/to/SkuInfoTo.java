@@ -1,7 +1,5 @@
 package com.winster.common.to;
 
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -15,14 +13,12 @@ import java.math.BigDecimal;
  * @date 2022-02-04 08:08:19
  */
 @Data
-@TableName("pms_sku_info")
 public class SkuInfoTo implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * skuId
 	 */
-	@TableId
 	private Long skuId;
 	/**
 	 * spuId

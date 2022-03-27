@@ -22,6 +22,7 @@
         <module>glmall-common</module>
         <module>glmall-gateway</module>
         <module>glmall-search</module>
+        <module>glmall-seckill</module>
         <module>third-party-server</module>
     </modules>
 

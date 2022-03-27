@@ -1,19 +1,15 @@
 package com.winster.glmall.glmallcoupon.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.winster.glmall.glmallcoupon.entity.SeckillSessionEntity;
-import com.winster.glmall.glmallcoupon.service.SeckillSessionService;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
+import com.winster.glmall.glmallcoupon.entity.SeckillSessionEntity;
+import com.winster.glmall.glmallcoupon.service.SeckillSessionService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 
 
@@ -29,6 +25,13 @@ import com.winster.common.utils.R;
 public class SeckillSessionController {
     @Autowired
     private SeckillSessionService seckillSessionService;
+
+
+    @GetMapping("/getLatest3DaySeckillSession")
+    public R getLatest3DaySeckillSession(){
+        List<SeckillSessionEntity> sessionEntities = seckillSessionService.getLatest3DaySeckillSession();
+        return R.ok().put("data", sessionEntities);
+    }
 
     /**
      * 列表

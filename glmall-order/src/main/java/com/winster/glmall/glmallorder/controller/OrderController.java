@@ -1,19 +1,17 @@
 package com.winster.glmall.glmallorder.controller;
 
-import java.util.Arrays;
-import java.util.Map;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.winster.glmall.glmallorder.entity.OrderEntity;
-import com.winster.glmall.glmallorder.service.OrderService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.winster.common.to.OrderTo;
 import com.winster.common.utils.PageUtils;
 import com.winster.common.utils.R;
+import com.winster.glmall.glmallorder.entity.OrderEntity;
+import com.winster.glmall.glmallorder.service.OrderService;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Map;
 
 
 
@@ -29,6 +27,19 @@ import com.winster.common.utils.R;
 public class OrderController {
     @Autowired
     private OrderService orderService;
+
+    /**
+     * 根据订单号查询订单信息
+     */
+    @RequestMapping("/getOne/{orderSn}")
+    // @RequiresPermissions("glmallOrder:order:list")
+    public R getOneByOrderSn(@PathVariable("orderSn") String orderSn){
+        OrderEntity orderEntity = orderService.getOne(new QueryWrapper<OrderEntity>()
+                .eq("order_sn", orderSn));
+        OrderTo to = new OrderTo();
+        BeanUtils.copyProperties(orderEntity, to);
+        return R.ok().put("order", to);
+    }
 
     /**
      * 列表

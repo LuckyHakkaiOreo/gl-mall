@@ -74,3 +74,24 @@ renren:
     # token有效时长，7天，单位秒
     expire: 604800
     header: token
+# 为后台服务加上seata配置吧
+seata:
+  service:
+    disable-global-transaction: false
+    vgroup-mapping:
+      default_tx_group: default
+  registry:
+    type: nacos
+    nacos:
+      server-addr: 192.168.0.196:8848
+      namespace: 32b86e73-f386-4028-9d7a-754f4fd64263
+      application: seata-server
+      cluster: default
+      group: SEATA_GROUP
+  config:
+    nacos:
+      server-addr: 192.168.0.196:8848
+      namespace: 32b86e73-f386-4028-9d7a-754f4fd64263
+      group: SEATA_GROUP
+    type: nacos
+  tx-service-group: default_tx_group

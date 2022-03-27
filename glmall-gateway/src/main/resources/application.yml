@@ -79,6 +79,11 @@ spring:
           uri: lb://glmall-order
           predicates:
             - Host=order.glmall.com
+        # 秒杀服务
+        - id: glmall_seckill_route
+          uri: lb://glmall-seckill
+          predicates:
+            - Host=seckill.glmall.com
 
 # 目标为glmall-product的请求：
 # http://localhost:999/api/glmallproduct/category/listWithTree

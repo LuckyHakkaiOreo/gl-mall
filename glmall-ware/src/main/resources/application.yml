@@ -12,3 +12,22 @@
 #  global-config:
 #    db-config:
 #      id-type: auto
+
+# rabbitmq默认使用了guest用户密码
+spring:
+  rabbitmq:
+    host: 192.168.0.196
+    virtual-host: /
+    port: 5672
+    # 发送者要确认消息到达服务器
+    publisher-confirm-type: correlated
+    # 发送者要确认消息投递到消息队列
+    publisher-returns: true
+    template:
+      # 只要抵达队列，以异步模式优先回调returnConfirm
+      mandatory: true
+    # 消费者对消息的acknowledge的模式
+    listener:
+      simple:
+        # manual需要消息消费者手动确认消息的消费
+        acknowledge-mode: manual
